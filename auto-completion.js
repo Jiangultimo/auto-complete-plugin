@@ -1,3 +1,7 @@
+
+/*
+ * 判断浏览器事件支持情况，暂时没用到，先留着 
+ */
 var detectEventSupport = (function () {
     return {
         eventName: function (name) {
@@ -30,24 +34,55 @@ var detectEventSupport = (function () {
                     break;
                 default:
                     break;
-
             }
         }
     }
 }());
 
+
+/*
+ * @_obj
+ * @_obj.triggerBtn 触发按钮
+ * @_obj.targetEle 加载列表的目标dom
+ * @_obj.ajaxLink 请求url
+ * @_obj.method 请求方法
+ */
 var autoCompletion = (function () {
     return {
-        init: function (obj) {
+        pramas:null,
+        init: function (_obj) {
             var self = this;
-            console.log(obj);
-            console.log(window.input);
-            obj.triggerBtn.on('propertychange keyup focus', function () {
-                $.web(obj.ajaxLink, {key: $(this).val()}, self.getTpl, obj.method);
+            self.pramas = _obj;
+            self.pramas.triggerBtn.on('propertychange keyup focus', function () {
+                $.ajax({
+                    url:self.pramas.ajaxLink,
+                    data:{key: $(this).val()},
+                    method:self.pramas.method,
+                    success:function(json){
+                        self.getTpl(json)
+                    }
+                });
             })
         },
-        getTpl: function (json) {
-            console.log(json);
+        getTpl: function (_json) {
+            var self = this;
+            var str = '';
+            for(var i  = 0,len = _json.length;i<len;i++){
+                str += '<li data-id="' + _json[i].id + '">' + _json[i].name + '</li>'
+            }
+            self.pramas.targetEle.html('').append(str);
+
+            //模板渲染完成，绑定点击事件获取id
+            self.bindEvent();
+        },
+        bindEvent:function(){
+            var self = this;
+            self.pramas.targetEle.find('li').on('click', function () {
+                var uid = $(this).attr('data-id');
+                self.pramas.triggerBtn.attr('data-id',uid);
+                $(this).parent().html('');
+                self.pramas.triggerBtn.val($(this).text());
+            });
         }
     }
 }());
@@ -58,5 +93,5 @@ $(document).ready(function () {
         targetEle: $('.completeList'),
         ajaxLink: '/admin/main/shopper',
         method: 'get'
-    })
+    });
 });
