@@ -86,12 +86,3 @@ var autoCompletion = (function () {
         }
     }
 }());
-
-$(document).ready(function () {
-    autoCompletion.init({
-        triggerBtn: $('.autoComplet'),
-        targetEle: $('.completeList'),
-        ajaxLink: '/admin/main/shopper',
-        method: 'get'
-    });
-});
