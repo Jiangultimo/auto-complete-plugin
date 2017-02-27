@@ -1,23 +1,22 @@
-
 /*
- * 判断浏览器事件支持情况，暂时没用到，先留着 
+ * 判断浏览器事件支持情况，暂时没用到，先留着
  */
-var detectEventSupport = (function () {
+var detectEventSupport = (function() {
     return {
-        eventName: function (name) {
-            var testElement = document.createElement('i'),
+        eventName: function(name) {
+            var testElement = document.createElement('i'), //创建一个dom元素
                 isSupported;
             name = 'on' + name;
-            isSupported = (name in testElement);
+            isSupported = (name in testElement); //在原型中查找是否存在‘onxx’事件
             if (!isSupported) {
                 testElement.setAttribute(name, 'xxx');
-                isSupported = typeof  testElement[name] === 'function';
+                isSupported = typeof testElement[name] === 'function';
             }
 
             testElement = null;
             return isSupported;
         },
-        getEventName: function () {
+        getEventName: function() {
             var self = this;
             switch (true) {
                 case self.eventName('propertychange'):
@@ -47,27 +46,29 @@ var detectEventSupport = (function () {
  * @_obj.ajaxLink 请求url
  * @_obj.method 请求方法
  */
-var autoCompletion = (function () {
+var autoCompletion = (function() {
     return {
-        pramas:null,
-        init: function (_obj) {
+        pramas: null,
+        init: function(_obj) {
             var self = this;
             self.pramas = _obj;
-            self.pramas.triggerBtn.on('propertychange keyup focus', function () {
+            self.pramas.triggerBtn.on('propertychange keyup focus', function() {
                 $.ajax({
-                    url:self.pramas.ajaxLink,
-                    data:{key: $(this).val()},
-                    method:self.pramas.method,
-                    success:function(json){
+                    url: self.pramas.ajaxLink,
+                    data: {
+                        key: $(this).val()
+                    },
+                    method: self.pramas.method,
+                    success: function(json) {
                         self.getTpl(json)
                     }
                 });
             })
         },
-        getTpl: function (_json) {
+        getTpl: function(_json) {
             var self = this;
             var str = '';
-            for(var i  = 0,len = _json.length;i<len;i++){
+            for (var i = 0, len = _json.length; i < len; i++) {
                 str += '<li data-id="' + _json[i].id + '">' + _json[i].name + '</li>'
             }
             self.pramas.targetEle.html('').append(str);
@@ -75,11 +76,11 @@ var autoCompletion = (function () {
             //模板渲染完成，绑定点击事件获取id
             self.bindEvent();
         },
-        bindEvent:function(){
+        bindEvent: function() {
             var self = this;
-            self.pramas.targetEle.find('li').on('click', function () {
+            self.pramas.targetEle.find('li').on('click', function() {
                 var uid = $(this).attr('data-id');
-                self.pramas.triggerBtn.attr('data-id',uid);
+                self.pramas.triggerBtn.attr('data-id', uid);
                 $(this).parent().html('');
                 self.pramas.triggerBtn.val($(this).text());
             });
